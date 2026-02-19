@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Friensi — Платформа продаж косметики через блогеров</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #0B0F19;
+            --bg-2: #111827;
+            --bg-card: rgba(255,255,255,0.03);
+            --bg-card-hover: rgba(255,255,255,0.06);
+            --border: rgba(255,255,255,0.07);
+            --border-hover: rgba(75,139,255,0.25);
+            --blue: #4B8BFF;
+            --blue-dim: #3B6FCC;
+            --blue-glow: rgba(75,139,255,0.12);
+            --green: #34D399;
+            --white: #FFFFFF;
+            --white-80: rgba(255,255,255,0.8);
+            --white-60: rgba(255,255,255,0.6);
+            --white-40: rgba(255,255,255,0.4);
+            --white-20: rgba(255,255,255,0.2);
+            --white-10: rgba(255,255,255,0.1);
+            --white-05: rgba(255,255,255,0.05);
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-snap-type: y mandatory;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--white);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .slide {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 80px;
+            position: relative;
+            scroll-snap-align: start;
+        }
+
+        .slide-inner {
+            max-width: 1140px;
+            width: 100%;
+        }
+
+        .line-top, .line-bottom {
+            position: absolute;
+            left: 80px;
+            right: 80px;
+            height: 1px;
+            background: var(--border);
+        }
+        .line-top { top: 0; }
+        .line-bottom { bottom: 0; }
+
+        .h-xl {
+            font-size: clamp(2.8rem, 7vw, 5.5rem);
+            font-weight: 800;
+            line-height: 1.05;
+            letter-spacing: -0.03em;
+        }
+
+        .h-lg {
+            font-size: clamp(2.4rem, 5vw, 4rem);
+            font-weight: 800;
+            line-height: 1.05;
+            letter-spacing: -0.03em;
+        }
+
+        .h-md {
+            font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+            font-weight: 700;
+            line-height: 1.15;
+            letter-spacing: -0.02em;
+        }
+
+        .blue { color: var(--blue); }
+
+        .sub {
+            font-size: clamp(1rem, 1.6vw, 1.2rem);
+            color: rgba(255,255,255,0.5);
+            line-height: 1.65;
+            font-weight: 400;
+        }
+
+        .label {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--blue);
+            margin-bottom: 16px;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .tags + .tags { margin-top: 10px; }
+
+        .tag {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--white-60);
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 13px 26px;
+            border-radius: 100px;
+            transition: all 0.35s ease;
+            cursor: default;
+        }
+
+        .tag:hover {
+            background: var(--blue-glow);
+            border-color: var(--border-hover);
+            color: var(--white);
+        }
+
+        /* ===== LANG SWITCH ===== */
+        .lang-switch {
+            position: fixed;
+            top: 28px;
+            right: 28px;
+            display: flex;
+            gap: 4px;
+            z-index: 200;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            padding: 4px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .lang-switch a {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--white-40);
+            text-decoration: none;
+            padding: 6px 14px;
+            border-radius: 100px;
+            transition: all 0.25s ease;
+        }
+
+        .lang-switch a:hover {
+            color: var(--white-80);
+        }
+
+        .lang-switch a.active {
+            background: var(--blue);
+            color: var(--white);
+        }
+
+        .dots {
+            position: fixed;
+            right: 32px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--white-20);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 0;
+        }
+
+        .dot.on {
+            background: var(--blue);
+            box-shadow: 0 0 10px var(--blue-glow);
+            transform: scale(1.3);
+        }
+
+        .s1 .slide-inner { text-align: center; }
+        .s1 .sub { margin: 24px auto 0; text-align: center; max-width: 560px; }
+
+        .s2 .slide-inner { text-align: center; }
+        .s2 .sub { margin: 20px auto 0; text-align: center; }
+
+        .s3 .slide-inner { text-align: center; }
+        .s3 .tags { margin-top: 48px; }
+
+        .s4 .slide-inner {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 72px;
+            align-items: start;
+        }
+
+        .bl-list { margin-top: 28px; }
+
+        .bl-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 9px 0;
+            border-bottom: 1px solid var(--white-05);
+        }
+
+        .bl-name { color: var(--blue); font-size: 0.92rem; font-weight: 500; }
+        .bl-num { color: var(--white-40); font-size: 0.92rem; font-weight: 500; }
+        .bl-more { color: var(--white-20); font-size: 0.85rem; font-style: italic; margin-top: 10px; }
+
+        .demo {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            margin-top: 32px;
+        }
+
+        .demo-item h4 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--blue);
+            margin-bottom: 4px;
+        }
+
+        .demo-item p {
+            font-size: 0.82rem;
+            color: var(--white-40);
+            line-height: 1.55;
+        }
+
+        .s5 .slide-inner {
+            display: grid;
+            grid-template-columns: 1.3fr 1fr;
+            gap: 80px;
+            align-items: center;
+        }
+
+        .big-num {
+            font-size: clamp(4.5rem, 11vw, 9rem);
+            font-weight: 800;
+            color: var(--blue);
+            line-height: 0.9;
+            letter-spacing: -0.04em;
+        }
+
+        .big-label {
+            font-size: clamp(1.1rem, 2vw, 1.6rem);
+            color: var(--white-60);
+            font-weight: 400;
+            margin-top: 8px;
+        }
+
+        .seg-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 40px;
+        }
+
+        .seg {
+            font-size: 0.85rem;
+            color: var(--white-40);
+        }
+
+        .seg b {
+            color: var(--white-60);
+            font-weight: 600;
+        }
+
+        .aud-footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 28px;
+            font-size: 0.85rem;
+            color: var(--white-40);
+        }
+
+        .aud-footer span + span { padding-left: 28px; border-left: 1px solid var(--border); }
+
+        .aud-pills {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .aud-pill {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--white-60);
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 14px 24px;
+            border-radius: 100px;
+        }
+
+        .s6 .slide-inner { text-align: center; }
+
+        .flow-3 {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr auto 1fr;
+            align-items: start;
+            margin-top: 56px;
+            text-align: center;
+        }
+
+        .flow-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 32px 20px;
+            transition: all 0.35s;
+        }
+
+        .flow-box:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-hover);
+        }
+
+        .flow-box h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 2px; }
+        .flow-box .fb-sub { font-size: 0.8rem; color: var(--white-40); margin-bottom: 16px; }
+
+        .flow-box ul { list-style: none; text-align: left; }
+        .flow-box ul li {
+            font-size: 0.85rem;
+            color: var(--white-60);
+            padding: 6px 0;
+            border-bottom: 1px solid var(--white-05);
+        }
+        .flow-box ul li:last-child { border: none; }
+
+        .flow-arrow {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding-top: 50px;
+            gap: 6px;
+        }
+
+        .fa-line {
+            width: 44px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--blue-dim), var(--blue));
+            border-radius: 1px;
+            position: relative;
+        }
+
+        .fa-line::after {
+            content: '';
+            position: absolute;
+            right: -1px;
+            top: -3px;
+            border: 4px solid transparent;
+            border-left: 6px solid var(--blue);
+        }
+
+        .fa-label {
+            font-size: 0.65rem;
+            color: var(--white-20);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .steps-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 44px;
+        }
+
+        .step-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 22px 16px;
+            text-align: center;
+            transition: all 0.35s;
+        }
+
+        .step-card:hover { border-color: var(--border-hover); }
+
+        .step-n {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--blue);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            margin-bottom: 8px;
+        }
+
+        .step-card h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: 4px; }
+        .step-card p { font-size: 0.78rem; color: var(--white-40); line-height: 1.45; }
+
+        .scale {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 48px 64px;
+            margin-top: 56px;
+        }
+
+        .sc-val {
+            font-size: clamp(2.8rem, 5vw, 4rem);
+            font-weight: 800;
+            color: var(--blue);
+            line-height: 1;
+            letter-spacing: -0.03em;
+        }
+
+        .sc-lbl {
+            font-size: 0.92rem;
+            color: var(--white-40);
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+
+        .s8 .slide-inner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 70vh;
+            position: relative;
+        }
+
+        .plat-word {
+            font-size: clamp(4rem, 12vw, 10rem);
+            font-weight: 900;
+            color: var(--blue);
+            letter-spacing: -0.04em;
+            line-height: 1;
+            position: relative;
+            z-index: 2;
+            text-align: center;
+        }
+
+        .plat-tags {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pt {
+            position: absolute;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: var(--white-60);
+            font-size: 0.88rem;
+            font-weight: 500;
+            padding: 11px 22px;
+            border-radius: 10px;
+            white-space: nowrap;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            animation: ptFloat 7s ease-in-out infinite;
+        }
+
+        .pt:nth-child(1) { top: 8%; left: 8%; animation-delay: 0s; }
+        .pt:nth-child(2) { top: 4%; right: 22%; animation-delay: 1.2s; }
+        .pt:nth-child(3) { top: 32%; right: 4%; animation-delay: 0.6s; }
+        .pt:nth-child(4) { bottom: 32%; left: 4%; animation-delay: 1.8s; }
+        .pt:nth-child(5) { bottom: 10%; left: 30%; animation-delay: 2.4s; }
+        .pt:nth-child(6) { bottom: 8%; right: 8%; animation-delay: 0.3s; }
+        .pt:nth-child(7) { top: 18%; left: 32%; animation-delay: 3s; }
+
+        @keyframes ptFloat {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(0.5deg); }
+        }
+
+        .rv {
+            opacity: 0;
+            transform: translateY(32px);
+            transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+                        transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .rv.show { opacity: 1; transform: translateY(0); }
+        .d1 { transition-delay: 0.12s; }
+        .d2 { transition-delay: 0.24s; }
+        .d3 { transition-delay: 0.36s; }
+        .d4 { transition-delay: 0.48s; }
+
+        @media (max-width: 1024px) {
+            .slide { padding: 60px 40px; }
+            .line-top, .line-bottom { left: 40px; right: 40px; }
+        }
+
+        @media (max-width: 768px) {
+            .slide { padding: 48px 24px; }
+            .line-top, .line-bottom { left: 24px; right: 24px; }
+            .s4 .slide-inner { grid-template-columns: 1fr; gap: 40px; }
+            .s5 .slide-inner { grid-template-columns: 1fr; gap: 40px; }
+            .flow-3 { grid-template-columns: 1fr; gap: 12px; }
+            .flow-arrow { flex-direction: row; padding: 0; justify-content: center; }
+            .fa-line { width: 2px; height: 28px; }
+            .fa-line::after { right: auto; top: auto; bottom: -1px; left: -3px; border: 4px solid transparent; border-top: 6px solid var(--blue); border-left: 4px solid transparent; }
+            .steps-4 { grid-template-columns: 1fr 1fr; }
+            .scale { grid-template-columns: 1fr 1fr; gap: 36px; }
+            .demo { grid-template-columns: 1fr; }
+            .dots { display: none; }
+            .pt { font-size: 0.75rem; padding: 8px 14px; }
+        }
+
+        @media (max-width: 480px) {
+            .steps-4 { grid-template-columns: 1fr; }
+            .scale { grid-template-columns: 1fr; }
+            .seg-grid { grid-template-columns: 1fr; }
+            .aud-footer { flex-direction: column; gap: 8px; }
+            .aud-footer span + span { padding-left: 0; border-left: none; padding-top: 8px; border-top: 1px solid var(--border); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Lang Switch -->
+    <div class="lang-switch">
+        <a href="index.html">EN</a>
+        <a href="ru.html" class="active">RU</a>
+        <a href="ko.html">KO</a>
+    </div>
+
+    <nav class="dots" id="dots">
+        <button class="dot on" data-i="0"></button>
+        <button class="dot" data-i="1"></button>
+        <button class="dot" data-i="2"></button>
+        <button class="dot" data-i="3"></button>
+        <button class="dot" data-i="4"></button>
+        <button class="dot" data-i="5"></button>
+        <button class="dot" data-i="6"></button>
+        <button class="dot" data-i="7"></button>
+    </nav>
+
+    <!-- 1 -->
+    <section class="slide s1">
+        <div class="line-bottom"></div>
+        <div class="slide-inner">
+            <h1 class="h-xl rv">Кто мы</h1>
+            <p class="sub rv d1">
+                Платформа для продажи косметики<br>
+                с прямым доступом к <span class="blue">платёжеспособной аудитории</span>
+            </p>
+        </div>
+    </section>
+
+    <!-- 2 -->
+    <section class="slide s2">
+        <div class="line-top"></div>
+        <div class="line-bottom"></div>
+        <div class="slide-inner">
+            <h2 class="h-xl rv">Мы не продавец.</h2>
+            <h2 class="h-xl blue rv d1">Мы &mdash; платформа.</h2>
+            <p class="sub rv d2">Мы даём трафик, доверие и продажи.</p>
+        </div>
+    </section>
+
+    <!-- 3 -->
+    <section class="slide s3">
+        <div class="line-top"></div>
+        <div class="line-bottom"></div>
+        <div class="slide-inner">
+            <h2 class="h-md rv">Почему партнёры выбирают нас</h2>
+            <div class="tags rv d1">
+                <span class="tag">Оплата только за продажу</span>
+                <span class="tag">Трафик от блогеров</span>
+            </div>
+            <div class="tags rv d2">
+                <span class="tag">Доверие аудитории</span>
+                <span class="tag">Прозрачная аналитика</span>
+                <span class="tag">Ноль предоплаты</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4 -->
+    <section class="slide s4">
+        <div class="line-top"></div>
+        <div class="line-bottom"></div>
+        <div class="slide-inner">
+            <div>
+                <h2 class="h-md rv">Прямые партнёрства с<br><span class="blue">бьюти-блогерами</span></h2>
+                <p class="sub rv d1" style="margin-top:6px">Сотрудничество с 100+ блогерами</p>
+                <div class="bl-list rv d2">
+                    <div class="bl-row"><span class="bl-name">beauty_dana</span><span class="bl-num">1.1m</span></div>
+                    <div class="bl-row"><span class="bl-name">skincare_aliya</span><span class="bl-num">900k</span></div>
+                    <div class="bl-row"><span class="bl-name">glow_studio</span><span class="bl-num">5.5m</span></div>
+                    <div class="bl-row"><span class="bl-name">makeup_madina</span><span class="bl-num">1.5m</span></div>
+                    <div class="bl-row"><span class="bl-name">lipstick_queen</span><span class="bl-num">2.3m</span></div>
+                    <div class="bl-row"><span class="bl-name">natural_beauty_kz</span><span class="bl-num">1.9m</span></div>
+                    <div class="bl-row"><span class="bl-name">cosmetics_review</span><span class="bl-num">160k</span></div>
+                    <div class="bl-row"><span class="bl-name">skintype.diary</span><span class="bl-num">287k</span></div>
+                    <p class="bl-more">И другие...</p>
+                </div>
+            </div>
+            <div class="rv d2">
+                <div class="demo">
+                    <div class="demo-item">
+                        <h4>18 &ndash; 24 года</h4>
+                        <p>Поколение Z<br>Студенты и молодые специалисты<br>Решают сами</p>
+                    </div>
+                    <div class="demo-item">
+                        <h4>25 &ndash; 34 года</h4>
+                        <p>Ядро бьюти-покупателей<br>Работающие профессионалы<br>Решают сами и с друзьями</p>
+                    </div>
+                    <div class="demo-item">
+                        <h4>35 &ndash; 44 года</h4>
+                        <p>Премиальный сегмент<br>Высокая покупательная способность<br>Решают сами</p>
+                    </div>
+                    <div class="demo-item">
+                        <h4>45+</h4>
+                        <p>Антивозрастной уход<br>Лояльны к бренду<br>Доверяют рекомендациям</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5 -->
+    <section class="slide s5">
+        <div class="line-top"></div>
+        <div class="line-bottom"></div>
+        <div class="slide-inner">
+            <div>
+                <span class="label rv">Наша аудитория</span>
+                <div class="big-num rv d1">30М+</div>
+                <div class="big-label rv d1">Совокупный охват через блогеров</div>
+                <div class="seg-grid rv d2">
+                    <div class="seg"><b>18&ndash;24</b> &middot; Трендовые покупатели</div>
+                    <div class="seg"><b>25&ndash;34</b> &middot; Ядро бьюти-рынка</div>
+                    <div class="seg"><b>35&ndash;44</b> &middot; Премиальный уход</div>
+                    <div class="seg"><b>45+</b> &middot; Доверяют рекомендациям</div>
+                </div>
+                <div class="aud-footer rv d3">
+                    <span>Прямой доступ</span>
+                    <span>Высокий интент к покупке</span>
+                    <span>Долгосрочная вовлечённость</span>
+                </div>
+            </div>
+            <div class="rv d2">
+                <div class="aud-pills">
+                    <div class="aud-pill">Фанаты бьюти и ухода за кожей</div>
+                    <div class="aud-pill">Активные подписчики в соцсетях</div>
+                    <div class="aud-pill">Городской средний и выше-среднего класс</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6 -->
+    <section class="slide s6">
+        <div class="line-top"></div>
+        <div class="line-bottom"></div>
+        <div class="slide-inner">
+            <span class="label rv">Бизнес-модель</span>
+            <h2 class="h-md rv d1">Как устроен <span class="blue">поток денег</span></h2>
+            <p class="sub rv d1" style="text-align:center;margin:8px auto 0">Три стороны. Одна платформа. Зарабатывают все.</p>
+
+            <div class="flow-3 rv d2">
+                <div class="flow-box">
+                    <h3>Бренд</h3>
+                    <div class="fb-sub">Косметическая компания</div>
+                    <ul>
+                        <li>Размещает товары на Friensi</li>
+                        <li>Устанавливает % бонуса</li>
+                        <li>Получает продажи и аналитику</li>
+                        <li>Платит только за продажу</li>
+                    </ul>
+                </div>
+                <div class="flow-arrow">
+                    <span class="fa-label">Товары</span>
+                    <div class="fa-line"></div>
+                </div>
+                <div class="flow-box">
+                    <h3 class="blue">Friensi</h3>
+                    <div class="fb-sub">Платформа</div>
+                    <ul>
+                        <li>Витрина товаров</li>
+                        <li>Трекинг продаж и атрибуция</li>
+                        <li>Расчёт бонусов</li>
+                        <li>Берёт комиссию платформы</li>
+                    </ul>
+                </div>
+                <div class="flow-arrow">
+                    <span class="fa-label">Трафик</span>
+                    <div class="fa-line"></div>
+                </div>
+                <div class="flow-box">
+                    <h3>Блогер</h3>
+                    <div class="fb-sub">Инфлюенсер / Креатор</div>
+                    <ul>
+                        <li>Выбирает товары для продвижения</li>
+                        <li>Делится реферальными ссылками</li>
+                        <li>Приводит покупателей</li>
+                        <li>Получает бонус за продажу</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="steps-4 rv d3">
+                <div class="step-card">
+                    <div class="step-n">Шаг 1</div>
+                    <h4>Покупатель покупает</h4>
+                    <p>Клиент покупает по реферальной ссылке блогера</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-n">Шаг 2</div>
+                    <h4>Friensi фиксирует</h4>
+                    <p>Продажа привязывается к нужному блогеру</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-n">Шаг 3</div>
+                    <h4>Бренд получает</h4>
+                    <p>Выручка за вычетом комиссии и бонуса</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-n">Шаг 4</div>
+                    <h4>Блогер зарабатывает</h4>
+                    <p>Бонус автоматически начисляется за каждую продажу</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 7 -->
+    <section class="slide s7">
+        <div class="line-top"></div>
+        <div class="line-bottom"></div>
+        <div class="slide-inner">
+            <h2 class="h-md rv">Наш масштаб в цифрах</h2>
+            <div class="scale rv d1">
+                <div>
+                    <div class="sc-val">100+</div>
+                    <div class="sc-lbl">бьюти-блогеров<br>на платформе</div>
+                </div>
+                <div>
+                    <div class="sc-val">30М+</div>
+                    <div class="sc-lbl">совокупный охват<br>через блогеров</div>
+                </div>
+                <div>
+                    <div class="sc-val">0</div>
+                    <div class="sc-lbl">предоплаты<br>для брендов</div>
+                </div>
+                <div>
+                    <div class="sc-val">3x</div>
+                    <div class="sc-lbl">выше конверсия<br>чем у обычной рекламы</div>
+                </div>
+                <div>
+                    <div class="sc-val">Экспертиза</div>
+                    <div class="sc-lbl">в инфлюенс-маркетинге<br>и бьюти-коммерции</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 8 -->
+    <section class="slide s8">
+        <div class="line-top"></div>
+        <div class="slide-inner">
+            <div class="plat-tags">
+                <div class="pt">Бьюти-маркетплейс</div>
+                <div class="pt">Охват через блогеров</div>
+                <div class="pt">Реферальный трекинг</div>
+                <div class="pt">Система бонусов</div>
+                <div class="pt">Аналитика для брендов</div>
+                <div class="pt">Масштабируемые продажи</div>
+                <div class="pt">Умный подбор</div>
+            </div>
+            <div class="plat-word rv">Платформа</div>
+        </div>
+    </section>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        const dots = document.querySelectorAll('.dot');
+
+        const io = new IntersectionObserver(es => {
+            es.forEach(e => { if (e.isIntersecting) e.target.classList.add('show'); });
+        }, { threshold: 0.12 });
+        document.querySelectorAll('.rv').forEach(el => io.observe(el));
+
+        const sio = new IntersectionObserver(es => {
+            es.forEach(e => {
+                if (e.isIntersecting) {
+                    const i = [...slides].indexOf(e.target);
+                    dots.forEach((d, j) => d.classList.toggle('on', j === i));
+                }
+            });
+        }, { threshold: 0.5 });
+        slides.forEach(s => sio.observe(s));
+
+        dots.forEach(d => d.addEventListener('click', () => {
+            slides[+d.dataset.i].scrollIntoView({ behavior: 'smooth' });
+        }));
+    </script>
+</body>
+</html>
